@@ -21,18 +21,24 @@ El ejercicio se divide en dos partes: una primera aproximación basada en odomet
 Descargar el simulador y los paquetes dependientes del mismo para poder trabajar con el robot Turtlebot 4:
 
 ```bash
+sudo apt update && sudo apt upgrade
 sudo apt install ros-humble-turtlebot4-simulator ros-humble-irobot-create-nodes ros-dev-tools
 
 ```
 
 ### 1. Clonar el repositorio
+Fuera del docker (en tu ubuntu o en el WSL)
 
 ```bash
+mkdir -p ~/AdR/p2_ws/src
+cd p2_ws/src
 git clone https://github.com/miggilcas/p2_kf_adr
 cd p2_kf_adr
 ```
 ### 2. Construir el paquete
+Ya dentro del Docker:
 ```bash
+cd ~/AdR/p2_ws
 colcon build --packages-select p2_kf_adr
 source install/setup.zsh  # o setup.bash si no estás usando el docker
 ```
