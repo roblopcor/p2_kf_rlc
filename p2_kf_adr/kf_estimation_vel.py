@@ -27,19 +27,19 @@ class KalmanFilterPureNode(Node):
         if noise_config == 'low':
             self.get_logger().info(f"Valor de ruido como: {noise_config}")
             proc_noise_std = [0.02] * 6
-            obs_noise_std = [0.02] * 6
+            self.obs_noise_std = [0.02] * 6
         elif noise_config == 'high_measurement':
             self.get_logger().info(f"Valor de ruido como: {noise_config}")
             proc_noise_std = [0.02] * 6
-            obs_noise_std = [0.1, 0.1, 0.05, 0.1, 0.1, 0.05]
+            self.obs_noise_std = [0.1, 0.1, 0.05, 0.1, 0.1, 0.05]
         elif noise_config == 'high_process':
             self.get_logger().info(f"Valor de ruido como: {noise_config}")
             proc_noise_std = [0.1, 0.1, 0.05, 0.1, 0.1, 0.05]
-            obs_noise_std = [0.02] * 6
+            self.obs_noise_std = [0.02] * 6
         else:
             self.get_logger().warn(f"Valor de noise_config desconocido: {noise_config}, usando configuración por defecto.")
             proc_noise_std = [0.02] * 6
-            obs_noise_std = [0.02] * 6
+            self.obs_noise_std = [0.02] * 6
 
         # TODO: Initialize 6D state and covariance
         initial_state = np.zeros(6)
@@ -49,7 +49,7 @@ class KalmanFilterPureNode(Node):
 
         self.last_time = None
 
-        self.kf = KalmanFilter_2(initial_state, initial_covariance, proc_noise_std, obs_noise_std)
+        self.kf = KalmanFilter_2(initial_state, initial_covariance, proc_noise_std, self.obs_noise_std)
 
         self.subscription = self.create_subscription(
             Odometry,
@@ -76,7 +76,8 @@ class KalmanFilterPureNode(Node):
         vx = v * math.cos(theta)
         vy = v * math.sin(theta)
 
-        z = np.array([x, y, theta, vx, vy, omega])
+        # Observación ruidosa (mismo ruido que el que prevee nuestro filtro)
+        z = generate_noisy_measurement_2(pose, vx, vy, omega, noise_std=np.array(self.obs_noise_std))
 
         # Calcular dt
         current_time = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9

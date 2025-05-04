@@ -9,7 +9,7 @@ from .visualization import Visualizer
 import numpy as np
 import math
 
-from .sensor_utils import odom_to_pose2D, get_normalized_pose2D, Odom2DDriftSimulator
+from .sensor_utils import odom_to_pose2D, get_normalized_pose2D, Odom2DDriftSimulator, generate_noisy_measurement
 from .visualization import Visualizer
 from .filters.kalman_filter import KalmanFilter 
 
@@ -31,21 +31,21 @@ class KalmanFilterNode(Node):
         if noise_config == 'low':
             self.get_logger().info(f"Valor de ruido como: {noise_config}")
             proc_noise_std = [0.02, 0.02, 0.01]
-            obs_noise_std = [0.02, 0.02, 0.01]
+            self.obs_noise_std = [0.02, 0.02, 0.01]
         elif noise_config == 'high_measurement':
             self.get_logger().info(f"Valor de ruido como: {noise_config}")
             proc_noise_std = [0.02, 0.02, 0.01]
-            obs_noise_std = [0.1, 0.1, 0.05]  # Aumento del ruido de medición
+            self.obs_noise_std = [0.1, 0.1, 0.05]  # Aumento del ruido de medición
         elif noise_config == 'high_process':
             self.get_logger().info(f"Valor de ruido como: {noise_config}")
             proc_noise_std = [0.1, 0.1, 0.05]  # Aumento del ruido de proceso
-            obs_noise_std = [0.02, 0.02, 0.01]
+            self.obs_noise_std = [0.02, 0.02, 0.01]
         else:
             self.get_logger().warn(f"Valor de noise_config desconocido: {noise_config}, usando configuración por defecto.")
             proc_noise_std = [0.02, 0.02, 0.01]
-            obs_noise_std = [0.02, 0.02, 0.01]
+            self.obs_noise_std = [0.02, 0.02, 0.01]
 
-        self.kf = KalmanFilter(initial_state, initial_covariance, proc_noise_std, obs_noise_std)
+        self.kf = KalmanFilter(initial_state, initial_covariance, proc_noise_std, self.obs_noise_std)
 
         self.subscription = self.create_subscription(
             Odometry,
@@ -77,9 +77,12 @@ class KalmanFilterNode(Node):
 
         # Paso 3: Ejecutar predicción y corrección del filtro
         self.kf.predict(u, dt)
-        z = np.array(pose)  # Observación directa del estado
-        self.kf.update(z)
 
+        # Observación ruidosa (mismo ruido con el que se diseña nuestro filtro)
+        z_full = generate_noisy_measurement(pose, v, omega, self.obs_noise_std + [0.02, 0.02])
+        z = z_full[:3]  # extraer solo x, y, theta con ruido
+        self.kf.update(z)
+ 
         # Paso 4: Publicar estado estimado
         self.publish_estimate(msg.header.stamp)
 

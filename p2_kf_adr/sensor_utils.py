@@ -73,7 +73,7 @@ def generate_noisy_measurement(pose, v, omega, noise_std=None):
     """
     if noise_std is None:
         noise_std = np.array([0.02, 0.02, 0.01, 0.02, 0.02])
-    
+     
     noise = np.random.normal(0, noise_std)
     z = np.array([pose[0], pose[1], pose[2], v, omega]) + noise
     return z
