@@ -1,23 +1,45 @@
 # Implementación del Filtro de Kalman en ROS 2
 
-Este proyecto implementa el Filtro de Kalman para estimar estados en un sistema utilizando ROS 2. Se presentan dos modelos diferentes: uno simplificado y otro completo.
+## Ejecución y explicación de los resultados
 
-## Modelos
-
+Lanzar primero la simulación:
+```
+ros2 launch turtlebot4_ignition_bringup turtlebot4_ignition.launch.py slam:=true nav2:=true rviz:=true
+```
 ### Modelo Simplificado (Posición)
+
 El modelo simplificado utiliza únicamente la posición como variable de estado. Este modelo es ideal para sistemas donde no se necesita estimar la velocidad y se prioriza la simplicidad computacional.
 
-#### 1. Ruido bajo:
+- Ruido bajo:
+```
+ros2 run p2_kf_adr kf_estimation --ros-args -p noise_config:=low
+```
 
-#### 2. Ruido alto en la medición (Q grande):
+- Ruido alto en la medición (Q grande):
+```
+ros2 run p2_kf_adr kf_estimation --ros-args -p noise_config:=high_measurement
+```
 
-#### 3. Ruido alto en el proceso (R grande):
+- Ruido alto en el proceso (R grande):
+```
+ros2 run p2_kf_adr kf_estimation --ros-args -p noise_config:=high_process
+```
 
 ### Modelo Completo (Posición y Velocidad)
+
 El modelo completo considera tanto la posición como la velocidad como variables de estado. Este modelo ofrece una estimación más precisa y es adecuado para sistemas dinámicos.
 
-#### 1. Ruido bajo:
+- Ruido bajo:
+```
+ros2 run p2_kf_adr kf_estimation_vel --ros-args -p noise_config:=low
+```
 
-#### 2. Ruido alto en la medición (Q grande):
+- Ruido alto en la medición (Q grande):
+```
+ros2 run p2_kf_adr kf_estimation_vel --ros-args -p noise_config:=high_measurement
+```
 
-#### 3. Ruido alto en el proceso (R grande):
+- Ruido alto en el proceso (R grande):
+```
+ros2 run p2_kf_adr kf_estimation_vel --ros-args -p noise_config:=high_process
+```
