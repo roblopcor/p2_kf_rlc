@@ -3,13 +3,14 @@ import PyKDL
 
 def odom_to_pose2D(odom):
     x = odom.pose.pose.position.x
-    y = odom.pose.pose.position.y
+    y = odom.pose.pose.position.y 
     yaw = get_yaw_from_quaternion(odom.pose.pose.orientation)
     return (x, y, yaw)
 
 def get_yaw_from_quaternion(quaternion):
     rot = PyKDL.Rotation.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
     return rot.GetRPY()[2]
+
 def get_normalized_pose2D(initial_pose, current_pose):
     # Check if the initial pose is set
     if initial_pose:
@@ -94,3 +95,4 @@ def generate_noisy_measurement_2(pose, vx, vy, omega, noise_std=None):
     true_measurement = np.array([x, y, theta, vx, vy, omega])
     noise = np.random.normal(0, noise_std, size=6)
     return true_measurement + noise
+ 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
@@ -102,10 +104,9 @@ class Visualizer(Node):
         """Displays the Matplotlib plot."""
         plt.show()
 
-if __name__ == "__main__":
-    rclpy.init()
+def main(args=None):
+    rclpy.init(args=args)
     visualizer = Visualizer()
     rclpy.spin(visualizer)
-    visualizer.destroy_node()
     rclpy.shutdown()
 
